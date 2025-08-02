@@ -11,7 +11,7 @@ Inspired by [Andrej Karpathy's weekend project](https://twitter.com/karpathy/sta
 - 🔎 Search movies (keyword, semantic, hybrid)
 - 🎯 Get recommendations for any movie
 - 🧠 Powered by OpenAI's `text-embedding-ada-002`
-- ⚡️ Uses Weaviate vector DB for fast semantic queries
+- ⚡️ Uses Pinecone vector DB for fast semantic queries
 - 🎨 Custom Netflix-style UI with scrollable carousels
 
 ---
@@ -35,7 +35,7 @@ Inspired by [Andrej Karpathy's weekend project](https://twitter.com/karpathy/sta
 | Frontend     | React + Tailwind CSS  |
 | Backend      | Node.js
 | Embeddings   | OpenAI `text-embedding-ada-002` |
-| Vector DB    | Weaviate                    |
+| Vector DB    | Pinecone                    |
 | Data         | Kaggle + Wikipedia datasets |
 | Deployment   | Vercel + Docker             |
 
