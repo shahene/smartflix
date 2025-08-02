@@ -43,7 +43,6 @@ Inspired by Andrej Karpathy's weekend project, Smartflix aims to provide users w
 
 ## Getting Started
 
-*Instructions to set up the project locally, install dependencies, configure environment variables (OpenAI and Pinecone API keys), and run the backend and frontend.*
 
 ---
 
