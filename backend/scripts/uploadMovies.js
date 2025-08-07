@@ -5,11 +5,11 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const openai = new OpenAI({
-  apiKey: 'sk-proj-gqSrSDPHZpnB1CXSSVoLvMOQaKEvvqzRNZrkOl9y2egZtis4b2AykIRPOtKuGyTpkxT3BlbkFJoGJzMKszmHFzbh6wT05L5qjWL4CDyvZlplGCfWEMBO8cgFh73a7HTJu8zpeswgI6zMjxtBxJYA'
+  apiKey: process.env.OPENAI_API_KEY
 });
 
 const pinecone = new Pinecone({
-  apiKey: 'pcsk_2reuiT_3KQ51CtcATJG7bnxJ2iiax5uZqnvKcHacDxJrhghbzoHjSvPYYqvLAXJYU1Jdod'
+  apiKey: process.env.PINECONE_API_KEY
 });
 
 const index = pinecone.index('smartflix-movies');
