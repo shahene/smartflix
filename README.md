@@ -36,7 +36,7 @@ Inspired by Andrej Karpathy's weekend project, Smartflix aims to provide users w
 | Backend     | Node.js                      |
 | Embeddings  | OpenAI text-embedding-ada-002 |
 | Vector DB   | Pinecone                     |
-| Data        | Kaggle movie datasets, Wikipedia |
+| Data        | Kaggle movie dataset, Wikipedia |
 | Deployment  | Vercel, Docker               |
 
 ---
