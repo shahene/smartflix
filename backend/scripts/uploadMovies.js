@@ -3,10 +3,6 @@ import { OpenAI } from 'openai';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
-
-
-dotenv.config();
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -16,7 +12,7 @@ const pinecone = new Pinecone({
   apiKey: process.env.PINECONE_API_KEY
 });
 
-const index = pinecone.index('intelligent-movies');
+const index = pinecone.index('smartflix-movies');
 
 async function main() {
   const __filename = fileURLToPath(import.meta.url);
@@ -37,25 +33,39 @@ async function main() {
       input
     });
 
-    const fullEmbedding = embedding.data[0].embedding
+    // Truncate to 1024 dimensions to match your index
+    const truncatedEmbedding = embedding.data[0].embedding.slice(0, 1024);
 
     vectors.push({
       id: movie.id,
-      values: fullEmbedding,
+      values: truncatedEmbedding,
       metadata: {
         title: movie.title,
         description: movie.description
       }
     });
-
+    
+    // Log the first few IDs to see what we're uploading
+    if (vectors.length <= 5) {
+      console.log(`📝 Uploading movie ID: ${movie.id} - ${movie.title}`);
+    }
+    
     if (vectors.length % 10 === 0) {
       console.log(`✅ Processed ${vectors.length} movies...`);
     }
   }
 
   console.log(' Uploading vectors to Pinecone...');
-  await index.upsert(vectors);
+  const BATCH_SIZE = 100;
+
+  for (let i = 0; i < vectors.length; i += BATCH_SIZE) {
+    const batch = vectors.slice(i, i + BATCH_SIZE);
+    await index.upsert(batch);
+    console.log(`✅ Uploaded batch ${Math.floor(i/BATCH_SIZE) + 1} (${batch.length} movies)...`);
+  }
+
   console.log('✅ Uploaded all movie vectors to Pinecone.');
+  console.log('🎯 Sample movie IDs uploaded:', vectors.slice(0, 3).map(v => v.id));
 }
 
 main().catch(err => console.error('❌ Error:', err));

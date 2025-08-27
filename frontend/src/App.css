@@ -1,0 +1,777 @@
+/* Import Netflix-style fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: #000;
+  color: #fff;
+  overflow-x: hidden;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.smartflix-app {
+  min-height: 100vh;
+  background: #000;
+}
+
+/* Loading Screen */
+.loading-screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+.smartflix-logo {
+  font-size: 48px;
+  font-weight: 900;
+  margin-bottom: 40px;
+  letter-spacing: -0.02em;
+}
+
+.logo-text {
+  background: linear-gradient(135deg, #e50914 0%, #ff6b6b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid #333;
+  border-top: 4px solid #e50914;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Fixed Header */
+.smartflix-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 60px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+  transition: background-color 0.3s ease;
+}
+
+.smartflix-header.scrolled {
+  background-color: #000;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.smartflix-logo {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.header-nav {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-link {
+  color: #e5e5e5;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  padding: 8px 16px;
+  border-radius: 4px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.search-icon {
+  font-size: 20px;
+  color: #e5e5e5;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.search-icon:hover {
+  color: #fff;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background: #333;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.user-avatar:hover {
+  background: #555;
+}
+
+/* Main Content */
+.main-content {
+  margin-top: 70px;
+}
+
+/* Hero Section */
+.hero-section {
+  height: 80vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0,0,0,0.8) 0%,
+    rgba(0,0,0,0.4) 50%,
+    rgba(0,0,0,0.8) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-content {
+  max-width: 700px;
+  z-index: 2;
+  padding: 0 40px;
+}
+
+.hero-title {
+  font-size: 4rem;
+  font-weight: 900;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+  letter-spacing: -0.03em;
+}
+
+.hero-subtitle {
+  font-size: 22px;
+  margin-bottom: 50px;
+  color: #e5e5e5;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.search-container {
+  position: relative;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.search-wrapper {
+  position: relative;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50px;
+  padding: 4px;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.search-wrapper:focus-within {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.02);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.hero-search {
+  width: 100%;
+  padding: 18px 60px 18px 24px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  outline: none;
+}
+
+.hero-search::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
+}
+
+.search-icon {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 18px;
+}
+
+/* Search Results */
+.search-results {
+  padding: 60px;
+}
+
+.search-results h2 {
+  font-size: 24px;
+  margin-bottom: 30px;
+  color: #e5e5e5;
+}
+
+.search-loading {
+  text-align: center;
+  color: #e5e5e5;
+  font-size: 18px;
+  padding: 40px;
+}
+
+.search-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+/* Movie Rows */
+.movie-rows {
+  padding: 40px 60px;
+}
+
+.movie-row {
+  margin-bottom: 50px;
+}
+
+.row-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #e5e5e5;
+}
+
+.row-content {
+  position: relative;
+}
+
+.row-movies {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+}
+
+.row-movies::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.scroll-arrow:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.scroll-arrow.left {
+  left: -25px;
+}
+
+.scroll-arrow.right {
+  right: -25px;
+}
+
+/* Movie Cards */
+.movie-card {
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  width: 200px;
+  height: 300px;
+}
+
+.movie-card.large {
+  width: 240px;
+  height: 360px;
+}
+
+.movie-card:hover {
+  transform: scale(1.05);
+  z-index: 10;
+}
+
+.movie-poster {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.poster-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+}
+
+.movie-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.movie-card:hover .card-overlay {
+  opacity: 1;
+}
+
+.overlay-content {
+  text-align: center;
+}
+
+.play-button {
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+}
+
+.play-button:hover {
+  background: #fff;
+  transform: scale(1.1);
+}
+
+.hover-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Load More Section */
+.load-more-section {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.load-more-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 12px 24px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.load-more-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Recommendations Page - Beautiful Grid Layout */
+.recommendations-page {
+  padding: 40px 60px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.rec-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.back-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  margin-bottom: 40px;
+  backdrop-filter: blur(10px);
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.rec-hero {
+  margin-bottom: 40px;
+}
+
+.rec-hero h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  margin-bottom: 30px;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.selected-movie {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.selected-poster {
+  width: 120px;
+  height: 180px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.selected-title {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.selected-info h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.selected-year,
+.selected-genre {
+  color: #ccc;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.rec-container {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+  padding: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.rec-intro {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.rec-intro h2 {
+  font-size: 2rem;
+  margin-bottom: 16px;
+  color: #fff;
+  font-weight: 700;
+}
+
+.rec-intro p {
+  font-size: 18px;
+  color: #ccc;
+  line-height: 1.6;
+}
+
+.recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 24px;
+}
+
+.rec-card {
+  display: flex;
+  gap: 20px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.rec-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+}
+
+.rec-poster {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.rec-poster-placeholder {
+  width: 100px;
+  height: 150px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  text-align: center;
+}
+
+.rec-poster-title {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.rec-number {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  background: linear-gradient(135deg, #e50914 0%, #ff6b6b 100%);
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 14px;
+  border: 2px solid #000;
+}
+
+.rec-content {
+  flex: 1;
+}
+
+.rec-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+.rec-description {
+  font-size: 14px;
+  color: #ccc;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rec-score {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.score-label {
+  color: #999;
+  font-size: 14px;
+}
+
+.score-value {
+  background: linear-gradient(135deg, #e50914 0%, #ff6b6b 100%);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .smartflix-header {
+    padding: 20px 40px;
+  }
+  
+  .hero-section {
+    padding: 0 40px;
+  }
+  
+  .movie-rows {
+    padding: 40px;
+  }
+  
+  .recommendations-page {
+    padding: 40px;
+  }
+  
+  .recommendations-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .smartflix-header {
+    padding: 15px 20px;
+  }
+  
+  .header-nav {
+    display: none;
+  }
+  
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  
+  .hero-section {
+    height: 60vh;
+  }
+  
+  .movie-rows {
+    padding: 20px;
+  }
+  
+  .recommendations-page {
+    padding: 20px;
+  }
+  
+  .rec-hero h1 {
+    font-size: 2rem;
+  }
+  
+  .selected-movie {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .scroll-arrow {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 16px;
+  }
+  
+  .rec-hero h1 {
+    font-size: 1.5rem;
+  }
+  
+  .rec-container {
+    padding: 20px;
+  }
+  
+  .rec-card {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar for Webkit */
+.row-movies::-webkit-scrollbar {
+  height: 8px;
+}
+
+.row-movies::-webkit-scrollbar-track {
+  background: #333;
+  border-radius: 4px;
+}
+
+.row-movies::-webkit-scrollbar-thumb {
+  background: #666;
+  border-radius: 4px;
+}
+
+.row-movies::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
