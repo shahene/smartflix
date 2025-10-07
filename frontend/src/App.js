@@ -3,14 +3,11 @@ import { BrowserRouter as Router, Routes, Route, useNavigate, useParams } from '
 import './App.css';
 
 // Home Page Component
-function HomePage() {
+function HomePage({ searchQuery }) {
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,25 +31,6 @@ function HomePage() {
       console.error('Failed to fetch movies:', err);
       setIsLoading(false);
     }
-  };
-
-  const handleSearch = async (query) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      setIsSearching(false);
-      return;
-    }
-
-    setIsSearching(true);
-    try {
-      const res = await fetch(`http://localhost:3001/api/search?query=${encodeURIComponent(query)}`);
-      const data = await res.json();
-      setSearchResults(data.results || []);
-    } catch (err) {
-      console.error('Search failed:', err);
-      setSearchResults([]);
-    }
-    setIsSearching(false);
   };
 
   const loadMore = () => {
@@ -130,40 +108,9 @@ function HomePage() {
             <p className="hero-subtitle">
               AI-powered movie recommendations that understand your taste
             </p>
-            <div className="search-container">
-              <div className="search-wrapper">
-                <input
-                  type="text"
-                  placeholder="Search for movies, genres, or descriptions..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    handleSearch(e.target.value);
-                  }}
-                  className="hero-search"
-                />
-                <div className="search-icon">🔍</div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
-
-      {/* Search Results */}
-      {searchQuery && (
-        <div className="search-results">
-          <h2>Search Results</h2>
-          {isSearching ? (
-            <div className="search-loading">Searching...</div>
-          ) : (
-            <div className="search-grid">
-              {searchResults.map(movie => (
-                <MovieCard key={movie.id} movie={movie} />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Movie Rows */}
       {!searchQuery && (
@@ -282,6 +229,29 @@ function RecommendationsPage() {
 
 // Main App Component
 export default function App() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  const handleSearch = async (query) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const res = await fetch(`http://localhost:3001/api/search?query=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      setSearchResults(data.results || []);
+    } catch (err) {
+      console.error('Search failed:', err);
+      setSearchResults([]);
+    }
+    setIsSearching(false);
+  };
+
   return (
     <Router>
       <div className="smartflix-app">
@@ -301,17 +271,51 @@ export default function App() {
           </div>
           
           <div className="header-right">
-            <div className="search-icon">🔍</div>
+            <div className="header-search-container">
+              <input
+                type="text"
+                placeholder="Search for movies..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  handleSearch(e.target.value);
+                }}
+                className="header-search"
+              />
+              <div className="search-icon">🔍</div>
+            </div>
             <div className="user-menu">
               <div className="user-avatar">👤</div>
             </div>
           </div>
         </header>
 
+        {/* Search Results */}
+        {searchQuery && (
+          <div className="search-results">
+            <h2>Search Results</h2>
+            {isSearching ? (
+              <div className="search-loading">Searching...</div>
+            ) : (
+              <div className="search-grid">
+                {searchResults.map(movie => (
+                  <div key={movie.id} className="movie-card" onClick={() => window.location.href = `/recommendations/${movie.id}`}>
+                    <div className="movie-poster">
+                      <div className="poster-placeholder">
+                        <span className="movie-title">{movie.title}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Main Content */}
         <main className="main-content">
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<HomePage searchQuery={searchQuery} />} />
             <Route path="/recommendations/:movieId" element={<RecommendationsPage />} />
           </Routes>
         </main>
