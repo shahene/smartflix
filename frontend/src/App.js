@@ -41,9 +41,9 @@ function HomePage({ searchQuery }) {
     navigate(`/recommendations/${movieId}`);
   };
 
-  const MovieCard = ({ movie, isLarge = false }) => (
+  const MovieCard = ({ movie, isLarge = false, isHero = false }) => (
     <div
-      className={`movie-card ${isLarge ? 'large' : ''}`}
+      className={`movie-card ${isLarge ? 'large' : ''} ${isHero ? 'hero' : ''}`}
       onClick={() => handleMovieClick(movie.id)}
     >
       <div className="movie-poster">
@@ -104,10 +104,13 @@ function HomePage({ searchQuery }) {
       <div className="hero-section">
         <div className="hero-background">
           <div className="hero-content">
-            <h1 className="hero-title">Smartflix</h1>
-            <p className="hero-subtitle">
-              AI-powered movie recommendations that understand your taste
-            </p>
+            <div className="hero-featured">
+              <div className="hero-movies-horizontal">
+                {movies.slice(0, 5).map(movie => (
+                  <MovieCard key={movie.id} movie={movie} isHero={true} />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -282,10 +285,6 @@ export default function App() {
                 }}
                 className="header-search"
               />
-              <div className="search-icon">🔍</div>
-            </div>
-            <div className="user-menu">
-              <div className="user-avatar">👤</div>
             </div>
           </div>
         </header>
