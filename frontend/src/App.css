@@ -396,6 +396,18 @@ body {
   overflow: hidden;
 }
 
+.poster-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.3s ease;
+}
+
+.movie-card:hover .poster-image {
+  transform: scale(1.05);
+}
+
 .poster-placeholder {
   width: 100%;
   height: 100%;
@@ -547,6 +559,31 @@ body {
   padding: 20px;
   text-align: center;
   flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.selected-poster-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 8px;
+}
+
+.selected-poster-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .selected-title {
@@ -620,6 +657,19 @@ body {
 .rec-poster {
   position: relative;
   flex-shrink: 0;
+}
+
+.rec-poster-image {
+  width: 100px;
+  height: 150px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.rec-card:hover .rec-poster-image {
+  transform: scale(1.05);
 }
 
 .rec-poster-placeholder {

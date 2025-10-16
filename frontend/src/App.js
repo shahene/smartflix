@@ -47,7 +47,19 @@ function HomePage({ searchQuery }) {
       onClick={() => handleMovieClick(movie.id)}
     >
       <div className="movie-poster">
-        <div className="poster-placeholder">
+        {movie.poster_url ? (
+          <img 
+            src={movie.poster_url} 
+            alt={movie.title}
+            className="poster-image"
+            onError={(e) => {
+              // Fallback to placeholder if image fails to load
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+        ) : null}
+        <div className="poster-placeholder" style={{ display: movie.poster_url ? 'none' : 'flex' }}>
           <span className="movie-title">{movie.title}</span>
         </div>
         <div className="card-overlay">
@@ -167,7 +179,19 @@ function RecommendationsPage() {
     <div className="rec-card">
       <div className="rec-poster">
         <div className="rec-number">{index + 1}</div>
-        <div className="rec-poster-placeholder">
+        {rec.poster_url ? (
+          <img 
+            src={rec.poster_url} 
+            alt={rec.title}
+            className="rec-poster-image"
+            onError={(e) => {
+              // Fallback to placeholder if image fails to load
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+        ) : null}
+        <div className="rec-poster-placeholder" style={{ display: rec.poster_url ? 'none' : 'flex' }}>
           <span className="rec-poster-title">{rec.title}</span>
         </div>
       </div>
@@ -203,7 +227,21 @@ function RecommendationsPage() {
           <h1>AI Recommendations</h1>
           <div className="selected-movie">
             <div className="selected-poster">
-              <span className="selected-title">{movie?.title}</span>
+              {movie?.poster_url ? (
+                <img 
+                  src={movie.poster_url} 
+                  alt={movie.title}
+                  className="selected-poster-image"
+                  onError={(e) => {
+                    // Fallback to placeholder if image fails to load
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div className="selected-poster-placeholder" style={{ display: movie?.poster_url ? 'none' : 'flex' }}>
+                <span className="selected-title">{movie?.title}</span>
+              </div>
             </div>
             <div className="selected-info">
               <h2>{movie?.title}</h2>
@@ -300,7 +338,19 @@ export default function App() {
                 {searchResults.map(movie => (
                   <div key={movie.id} className="movie-card" onClick={() => window.location.href = `/recommendations/${movie.id}`}>
                     <div className="movie-poster">
-                      <div className="poster-placeholder">
+                      {movie.poster_url ? (
+                        <img 
+                          src={movie.poster_url} 
+                          alt={movie.title}
+                          className="poster-image"
+                          onError={(e) => {
+                            // Fallback to placeholder if image fails to load
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <div className="poster-placeholder" style={{ display: movie.poster_url ? 'none' : 'flex' }}>
                         <span className="movie-title">{movie.title}</span>
                       </div>
                     </div>
