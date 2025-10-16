@@ -1,0 +1,42 @@
+[
+  {
+    "id": "fa587871-ab17-4af1-8840-596984b4749f",
+    "title": "Creed III",
+    "description": "After dominating the boxing world, Adonis Creed has been thriving in both his career and family life. When a childhood friend and former boxing prodigy, Damien Anderson, resurfaces after serving a long sentence in prison, he is eager to prove that he deserves his shot in the ring. The face-off between former friends is more than just a fight. To settle the score, Adonis must put his future on the line to battle Damien — a fighter who has nothing to lose.",
+    "genre": "Drama, Action",
+    "year": 2023,
+    "poster_url": "https://image.tmdb.org/t/p/w500/cvsXj3I9Q2iyyIo95AecSd1tad7.jpg"
+  },
+  {
+    "id": "43bf1127-1a09-4c98-82df-481d189145fb",
+    "title": "Avatar: The Way of Water",
+    "description": "Set more than a decade after the events of the first film, learn the story of the Sully family (Jake, Neytiri, and their kids), the trouble that follows them, the lengths they go to keep each other safe, the battles they fight to stay alive, and the tragedies they endure.",
+    "genre": "Science Fiction, Adventure, Action",
+    "year": 2022,
+    "poster_url": "https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg"
+  },
+  {
+    "id": "aed0ae71-5ca2-4250-9066-041a5bbb8194",
+    "title": "The Super Mario Bros. Movie",
+    "description": "While working underground to fix a water main, Brooklyn plumbers—and brothers—Mario and Luigi are transported down a mysterious pipe and wander into a magical new world. But when the brothers are separated, Mario embarks on an epic quest to find Luigi.",
+    "genre": "Animation, Adventure, Family, Fantasy, Comedy",
+    "year": 2023,
+    "poster_url": "https://image.tmdb.org/t/p/w500/qNBAXBIQlnOThrVvA6mA2B5ggV6.jpg"
+  },
+  {
+    "id": "b683bb75-8ae9-45ef-99bd-e32a38c485c9",
+    "title": "Mummies",
+    "description": "Through a series of unfortunate events, three mummies end up in present-day London and embark on a wacky and hilarious journey in search of an old ring belonging to the Royal Family, stolen by ambitious archaeologist Lord Carnaby.",
+    "genre": "Animation, Comedy, Family, Adventure, Fantasy",
+    "year": 2023,
+    "poster_url": "https://image.tmdb.org/t/p/w500/r6Ghtw9ENhTXfeUsd1Al20ZAvX.jpg"
+  },
+  {
+    "id": "588e87dd-749a-48cd-9007-ad2dfd7d5621",
+    "title": "Supercell",
+    "description": "Good-hearted teenager William always lived in hope of following in his late father’s footsteps and becoming a storm chaser. His father’s legacy has now been turned into a storm-chasing tourist business, managed by the greedy and reckless Zane Rogers, who is now using William as the main attraction to lead a group of unsuspecting adventurers deep into the eye of the most dangerous supercell ever seen.",
+    "genre": "Action",
+    "year": 2023,
+    "poster_url": "https://image.tmdb.org/t/p/w500/gbGHezV6yrhua0KfAgwrknSOiIY.jpg"
+  }
+]

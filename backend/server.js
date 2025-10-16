@@ -44,7 +44,7 @@ app.get('/api/movies', (req, res) => {
   const start = (page - 1) * limit;
   const end = start + limit;
 
-  const paginatedMovies = movies.slice(start, end).map(({ id, title }) => ({ id, title }));
+  const paginatedMovies = movies.slice(start, end).map(({ id, title, poster_url }) => ({ id, title, poster_url }));
   res.json({
     page,
     limit,
@@ -86,7 +86,8 @@ app.get('/api/search', async (req, res) => {
       id: match.id,
       title: match.metadata.title,
       description: match.metadata.description,
-      score: match.score
+      score: match.score,
+      poster_url: match.metadata.poster_url
     }));
     
     res.json({ results });
@@ -131,7 +132,8 @@ app.get('/api/recommendations/:movieId', async (req, res) => {
         id: match.id,
         title: match.metadata.title,
         description: match.metadata.description,
-        score: match.score
+        score: match.score,
+        poster_url: match.metadata.poster_url
       }));
     
     console.log(`🎉 Found ${recommendations.length} recommendations`);
