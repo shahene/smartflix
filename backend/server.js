@@ -68,31 +68,77 @@ app.get('/api/search', async (req, res) => {
       return res.status(400).json({ error: 'Query parameter required' });
     }
     
-    const embedding = await openai.embeddings.create({
-      model: 'text-embedding-ada-002',
-      input: query,
-    });
+    let results = [];
     
-    // Truncate to 1024 dimensions to match your index
-    const truncatedEmbedding = embedding.data[0].embedding.slice(0, 1024);
-    
-    const queryResponse = await index.query({
-      vector: truncatedEmbedding,
-      topK: 10,
-      includeMetadata: true
-    });
-    
-    const results = queryResponse.matches.map(match => ({
-      id: match.id,
-      title: match.metadata.title,
-      description: match.metadata.description,
-      score: match.score,
-      poster_url: match.metadata.poster_url
-    }));
+    try {
+      // Try AI embeddings search first
+      const embedding = await openai.embeddings.create({
+        model: 'text-embedding-ada-002',
+        input: query,
+      });
+      
+      // Truncate to 1024 dimensions to match your index
+      const truncatedEmbedding = embedding.data[0].embedding.slice(0, 1024);
+      
+      const queryResponse = await index.query({
+        vector: truncatedEmbedding,
+        topK: 10,
+        includeMetadata: true
+      });
+      
+      results = queryResponse.matches.map(match => ({
+        id: match.id,
+        title: match.metadata.title,
+        description: match.metadata.description,
+        score: match.score,
+        poster_url: match.metadata.poster_url
+      }));
+    } catch (embeddingError) {
+      console.log('AI search failed, falling back to keyword search:', embeddingError.message);
+      
+      // Fallback to keyword search
+      const keywordResults = movies.filter(movie => 
+        movie.title.toLowerCase().includes(query.toLowerCase()) ||
+        (movie.description && movie.description.toLowerCase().includes(query.toLowerCase()))
+      ).slice(0, 10);
+      
+      results = keywordResults.map(movie => ({
+        id: movie.id,
+        title: movie.title,
+        description: movie.description,
+        score: 1.0, // Perfect match for keyword search
+        poster_url: movie.poster_url
+      }));
+    }
     
     res.json({ results });
   } catch (error) {
     console.error('Error searching movies:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Simple keyword search endpoint
+app.get('/api/search/keyword', (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query) {
+      return res.status(400).json({ error: 'Query parameter required' });
+    }
+    
+    const results = movies.filter(movie => 
+      movie.title.toLowerCase().includes(query.toLowerCase()) ||
+      (movie.description && movie.description.toLowerCase().includes(query.toLowerCase()))
+    ).slice(0, 20).map(movie => ({
+      id: movie.id,
+      title: movie.title,
+      description: movie.description,
+      poster_url: movie.poster_url
+    }));
+    
+    res.json({ results });
+  } catch (error) {
+    console.error('Error in keyword search:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -128,13 +174,21 @@ app.get('/api/recommendations/:movieId', async (req, res) => {
     
     const recommendations = queryResponse.matches
       .filter(match => match.id !== movieId)
-      .map(match => ({
-        id: match.id,
-        title: match.metadata.title,
-        description: match.metadata.description,
-        score: match.score,
-        poster_url: match.metadata.poster_url
-      }));
+      .map(match => {
+        // Find the movie in local data to get poster_url
+        const localMovie = movies.find(m => m.id === match.id);
+        console.log(`🔍 Looking for movie ID: ${match.id}, found: ${localMovie ? 'YES' : 'NO'}`);
+        if (localMovie) {
+          console.log(`📸 Poster URL: ${localMovie.poster_url}`);
+        }
+        return {
+          id: match.id,
+          title: match.metadata.title,
+          description: match.metadata.description,
+          score: match.score,
+          poster_url: localMovie ? localMovie.poster_url : 'https://via.placeholder.com/300x450/1a1a1a/ffffff?text=Movie+Poster'
+        };
+      });
     
     console.log(`🎉 Found ${recommendations.length} recommendations`);
     console.log('📋 Recommendations:', recommendations);
