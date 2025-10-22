@@ -1707,6 +1707,8 @@ function RecommendationsPage() {
 
   useEffect(() => {
     fetchMovieAndRecommendations();
+    // Scroll to top when page loads
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [movieId]);
 
   const fetchMovieAndRecommendations = async () => {
@@ -1745,7 +1747,10 @@ function RecommendationsPage() {
     const similarityLabel = getSimilarityLabel(rec.score);
 
     return (
-      <div className="rec-card" onClick={() => navigate(`/recommendations/${rec.id}`)}>
+      <div className="rec-card" onClick={() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        navigate(`/recommendations/${rec.id}`);
+      }}>
         <div className="rec-rank">
           <span className="rank-number">#{index + 1}</span>
         </div>
@@ -1887,6 +1892,7 @@ export default function App() {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
+  const [searchTimeout, setSearchTimeout] = useState(null);
 
   const handleSearch = async (query) => {
     if (!query.trim()) {
@@ -1906,6 +1912,29 @@ export default function App() {
     }
     setIsSearching(false);
   };
+
+  const debouncedSearch = (query) => {
+    // Clear existing timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+    
+    // Set new timeout
+    const timeout = setTimeout(() => {
+      handleSearch(query);
+    }, 300); // 300ms delay
+    
+    setSearchTimeout(timeout);
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+    };
+  }, [searchTimeout]);
 
   // Scroll to search results when they appear
   useEffect(() => {
@@ -2008,7 +2037,7 @@ export default function App() {
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
-                  handleSearch(e.target.value);
+                  debouncedSearch(e.target.value);
                 }}
                 className="header-search"
               />
@@ -2031,7 +2060,10 @@ export default function App() {
             ) : (
               <div className="search-grid">
                 {searchResults.map(movie => (
-                  <div key={movie.id} className="movie-card" onClick={() => window.location.href = `/recommendations/${movie.id}`}>
+                  <div key={movie.id} className="movie-card" onClick={() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    window.location.href = `/recommendations/${movie.id}`;
+                  }}>
                     <div className="movie-poster">
                       {movie.poster_url ? (
                         <img 
