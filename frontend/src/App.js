@@ -92,6 +92,12 @@ function HomePage({ searchQuery }) {
         <div className="poster-placeholder" style={{ display: movie.poster_url ? 'none' : 'flex' }}>
           <span className="movie-title">{movie.title}</span>
         </div>
+        <div className="card-overlay">
+          <div className="overlay-content">
+            <div className="recommend-button">→</div>
+            <div className="hover-title">Find Similar</div>
+          </div>
+        </div>
       </div>
     </div>
   );
