@@ -22,12 +22,14 @@ function HomePage({ searchQuery }) {
       const data = await res.json();
       
       console.log(`Page ${currentPage}:`, data.movies.length, 'movies loaded');
-      console.log('Total movies so far:', currentPage === 1 ? data.movies.length : movies.length + data.movies.length);
       
       if (currentPage === 1) {
         setMovies(data.movies);
       } else {
-        setMovies(prev => [...prev, ...data.movies]);
+        setMovies(prev => {
+          console.log('Total movies so far:', prev.length + data.movies.length);
+          return [...prev, ...data.movies];
+        });
       }
       
       setHasMore(data.movies.length === 50);
@@ -39,7 +41,7 @@ function HomePage({ searchQuery }) {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }, [currentPage, movies.length]);
+  }, [currentPage]);
 
   useEffect(() => {
     console.log('useEffect triggered for page:', currentPage);
@@ -48,22 +50,31 @@ function HomePage({ searchQuery }) {
 
   // Infinite scroll effect
   useEffect(() => {
+    let scrollTimeout;
+    
     const handleScroll = () => {
       if (isLoadingMore || !hasMore) return;
       
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      
-      // Load more when user is 200px from bottom
-      if (scrollTop + windowHeight >= documentHeight - 200) {
-        console.log('Near bottom, loading more movies...');
-        setCurrentPage(prev => prev + 1);
-      }
+      // Debounce scroll events to prevent rapid firing
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        
+        // Load more when user is 200px from bottom
+        if (scrollTop + windowHeight >= documentHeight - 200) {
+          console.log('Near bottom, loading more movies...');
+          setCurrentPage(prev => prev + 1);
+        }
+      }, 100);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(scrollTimeout);
+    };
   }, [isLoadingMore, hasMore]);
 
 
@@ -73,6 +84,7 @@ function HomePage({ searchQuery }) {
 
   const MovieCard = ({ movie, isLarge = false, isHero = false }) => (
     <div
+      key={movie.id}
       className={`movie-card ${isLarge ? 'large' : ''} ${isHero ? 'hero' : ''}`}
       onClick={() => handleMovieClick(movie.id)}
     >
