@@ -77,22 +77,24 @@ app.get('/api/search', async (req, res) => {
         input: query,
       });
       
-      // Truncate to 1024 dimensions to match your index
-      const truncatedEmbedding = embedding.data[0].embedding.slice(0, 1024);
-      
+      // Use full embedding dimensions (1024 for text-embedding-ada-002)
       const queryResponse = await index.query({
-        vector: truncatedEmbedding,
+        vector: embedding.data[0].embedding,
         topK: 10,
         includeMetadata: true
       });
       
-      results = queryResponse.matches.map(match => ({
-        id: match.id,
-        title: match.metadata.title,
-        description: match.metadata.description,
-        score: match.score,
-        poster_url: match.metadata.poster_url
-      }));
+      results = queryResponse.matches.map(match => {
+        // Find the full movie data to get poster_url
+        const fullMovie = movies.find(m => m.id === match.id);
+        return {
+          id: match.id,
+          title: match.metadata.title,
+          description: match.metadata.description,
+          score: match.score,
+          poster_url: fullMovie?.poster_url || match.metadata.poster_url
+        };
+      });
     } catch (embeddingError) {
       console.log('AI search failed, falling back to keyword search:', embeddingError.message);
       
@@ -173,7 +175,7 @@ app.get('/api/recommendations/:movieId', async (req, res) => {
     console.log('📊 Query response:', JSON.stringify(queryResponse, null, 2));
     
     const recommendations = queryResponse.matches
-      .filter(match => match.id !== movieId)
+      .filter(match => match.id !== movieId && match.score < 1.0)
       .map(match => {
         // Find the movie in local data to get poster_url
         const localMovie = movies.find(m => m.id === match.id);
