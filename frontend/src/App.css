@@ -595,12 +595,13 @@ body {
 
 .row-movies {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
   -ms-overflow-style: none;
   scroll-behavior: smooth;
+  padding: 0 4px;
 }
 
 .row-movies::-webkit-scrollbar {
@@ -641,7 +642,7 @@ body {
 .movie-card {
   flex-shrink: 0;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.2s ease;
   position: relative;
   width: 240px;
   height: 360px;
@@ -662,6 +663,8 @@ body {
 .movie-card:hover {
   transform: scale(1.05);
   z-index: 10;
+  position: relative;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .movie-poster {
@@ -709,10 +712,11 @@ body {
   bottom: 0;
   background: rgba(0, 0, 0, 0.8);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: none;
 }
 
 .movie-card:hover .card-overlay {
@@ -740,12 +744,7 @@ body {
   justify-content: center;
   font-size: 24px;
   margin-bottom: 16px;
-  transition: all 0.3s ease;
-}
-
-.recommend-button:hover {
-  background: #fff;
-  transform: scale(1.1);
+  transition: all 0.2s ease;
 }
 
 .hover-title {
@@ -753,6 +752,7 @@ body {
   font-weight: 600;
   color: #fff;
 }
+
 
 /* Load More Section */
 .load-more-section {

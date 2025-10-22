@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import './App.css';
 
@@ -11,48 +11,25 @@ function HomePage({ searchQuery }) {
   const [hasMore, setHasMore] = useState(true);
   const navigate = useNavigate();
 
-
-  useEffect(() => {
-    console.log('useEffect triggered for page:', currentPage);
-    fetchMovies();
-  }, [currentPage]);
-
-  // Infinite scroll effect
-  useEffect(() => {
-    const handleScroll = () => {
-      if (isLoadingMore || !hasMore) return;
-      
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      
-      // Load more when user is 200px from bottom
-      if (scrollTop + windowHeight >= documentHeight - 200) {
-        console.log('Near bottom, loading more movies...');
-        setCurrentPage(prev => prev + 1);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isLoadingMore, hasMore]);
-
-  const fetchMovies = async () => {
+  const fetchMovies = useCallback(async () => {
     try {
       if (currentPage > 1) {
         setIsLoadingMore(true);
       }
       
-      const res = await fetch(`http://localhost:3001/api/movies?page=${currentPage}&limit=50`);
+      const apiUrl = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001/api';
+      const res = await fetch(`${apiUrl}/movies?page=${currentPage}&limit=50`);
       const data = await res.json();
       
       console.log(`Page ${currentPage}:`, data.movies.length, 'movies loaded');
-      console.log('Total movies so far:', currentPage === 1 ? data.movies.length : movies.length + data.movies.length);
       
       if (currentPage === 1) {
         setMovies(data.movies);
       } else {
-        setMovies(prev => [...prev, ...data.movies]);
+        setMovies(prev => {
+          console.log('Total movies so far:', prev.length + data.movies.length);
+          return [...prev, ...data.movies];
+        });
       }
       
       setHasMore(data.movies.length === 50);
@@ -64,7 +41,41 @@ function HomePage({ searchQuery }) {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  };
+  }, [currentPage]);
+
+  useEffect(() => {
+    console.log('useEffect triggered for page:', currentPage);
+    fetchMovies();
+  }, [currentPage, fetchMovies]);
+
+  // Infinite scroll effect
+  useEffect(() => {
+    let scrollTimeout;
+    
+    const handleScroll = () => {
+      if (isLoadingMore || !hasMore) return;
+      
+      // Debounce scroll events to prevent rapid firing
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        
+        // Load more when user is 200px from bottom
+        if (scrollTop + windowHeight >= documentHeight - 200) {
+          console.log('Near bottom, loading more movies...');
+          setCurrentPage(prev => prev + 1);
+        }
+      }, 100);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, [isLoadingMore, hasMore]);
 
 
   const handleMovieClick = (movieId) => {
@@ -73,6 +84,7 @@ function HomePage({ searchQuery }) {
 
   const MovieCard = ({ movie, isLarge = false, isHero = false }) => (
     <div
+      key={movie.id}
       className={`movie-card ${isLarge ? 'large' : ''} ${isHero ? 'hero' : ''}`}
       onClick={() => handleMovieClick(movie.id)}
     >
@@ -1705,19 +1717,14 @@ function RecommendationsPage() {
   const [recommendations, setRecommendations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchMovieAndRecommendations();
-    // Scroll to top when page loads
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [movieId]);
-
-  const fetchMovieAndRecommendations = async () => {
+  const fetchMovieAndRecommendations = useCallback(async () => {
     try {
-      const movieRes = await fetch(`http://localhost:3001/api/movies/${movieId}`);
+      const apiUrl = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001/api';
+      const movieRes = await fetch(`${apiUrl}/movies/${movieId}`);
       const movieData = await movieRes.json();
       setMovie(movieData);
 
-      const recRes = await fetch(`http://localhost:3001/api/recommendations/${movieId}`);
+      const recRes = await fetch(`${apiUrl}/recommendations/${movieId}`);
       const recData = await recRes.json();
       setRecommendations(recData.recommendations || []);
       setIsLoading(false);
@@ -1725,7 +1732,13 @@ function RecommendationsPage() {
       console.error('Failed to fetch data:', err);
       setIsLoading(false);
     }
-  };
+  }, [movieId]);
+
+  useEffect(() => {
+    fetchMovieAndRecommendations();
+    // Scroll to top when page loads
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [movieId, fetchMovieAndRecommendations]);
 
   const getSimilarityColor = (score) => {
     if (score >= 0.8) return '#4ade80'; // Green
@@ -1886,43 +1899,19 @@ function RecommendationsPage() {
   );
 }
 
-// Main App Component
-export default function App() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
+// Header Component (inside Router context)
+function AppHeader({ searchQuery, setSearchQuery, isInfoPanelOpen, setIsInfoPanelOpen, onSearch }) {
+  const navigate = useNavigate();
   const [searchTimeout, setSearchTimeout] = useState(null);
 
-  const handleSearch = async (query) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      setIsSearching(false);
-      return;
-    }
-
-    setIsSearching(true);
-    try {
-      const res = await fetch(`http://localhost:3001/api/search?query=${encodeURIComponent(query)}`);
-      const data = await res.json();
-      setSearchResults(data.results || []);
-    } catch (err) {
-      console.error('Search failed:', err);
-      setSearchResults([]);
-    }
-    setIsSearching(false);
-  };
-
   const debouncedSearch = (query) => {
-    // Clear existing timeout
     if (searchTimeout) {
       clearTimeout(searchTimeout);
     }
     
-    // Set new timeout
     const timeout = setTimeout(() => {
-      handleSearch(query);
-    }, 300); // 300ms delay
+      onSearch(query);
+    }, 300);
     
     setSearchTimeout(timeout);
   };
@@ -1935,6 +1924,106 @@ export default function App() {
       }
     };
   }, [searchTimeout]);
+
+  return (
+    <header className="smartflix-header">
+      <div className="header-left">
+        <div className="smartflix-logo">
+          <span className="logo-text">SMARTFLIX</span>
+        </div>
+        <nav className="header-nav">
+          <button 
+            className="nav-link"
+            onClick={() => navigate('/')}
+            style={{ background: 'none', border: 'none', color: 'inherit', font: 'inherit', cursor: 'pointer' }}
+          >
+            Home
+          </button>
+          <a 
+            href="/shahene_chaouachi_resume.pdf" 
+            className="nav-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            TV Shows
+          </a>
+          <a 
+            href="/shahene_chaouachi_resume.pdf" 
+            className="nav-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Movies
+          </a>
+          <a 
+            href="/shahene_chaouachi_resume.pdf" 
+            className="nav-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            New & Popular
+          </a>
+          <a 
+            href="/shahene_chaouachi_resume.pdf" 
+            className="nav-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            My List
+          </a>
+        </nav>
+      </div>
+      
+      <div className="header-right">
+        <div className="header-search-container">
+          <input
+            type="text"
+            placeholder="Search for movies..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              debouncedSearch(e.target.value);
+            }}
+            className="header-search"
+          />
+        </div>
+        <button 
+          className="header-about-btn"
+          onClick={() => setIsInfoPanelOpen(!isInfoPanelOpen)}
+        >
+          {isInfoPanelOpen ? 'Close' : 'About'}
+        </button>
+      </div>
+    </header>
+  );
+}
+
+// Main App Component
+export default function App() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
+
+  const handleSearch = async (query) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const apiUrl = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001/api';
+      const res = await fetch(`${apiUrl}/search?query=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      setSearchResults(data.results || []);
+    } catch (err) {
+      console.error('Search failed:', err);
+      setSearchResults([]);
+    }
+    setIsSearching(false);
+  };
 
   // Scroll to search results when they appear
   useEffect(() => {
@@ -2015,41 +2104,13 @@ export default function App() {
         </div>
 
         {/* Fixed Header */}
-        <header className="smartflix-header">
-          <div className="header-left">
-            <div className="smartflix-logo">
-              <span className="logo-text">SMARTFLIX</span>
-            </div>
-            <nav className="header-nav">
-              <a href="#" className="nav-link active">Home</a>
-              <a href="#" className="nav-link">TV Shows</a>
-              <a href="#" className="nav-link">Movies</a>
-              <a href="#" className="nav-link">New & Popular</a>
-              <a href="#" className="nav-link">My List</a>
-            </nav>
-          </div>
-          
-          <div className="header-right">
-            <div className="header-search-container">
-              <input
-                type="text"
-                placeholder="Search for movies..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  debouncedSearch(e.target.value);
-                }}
-                className="header-search"
-              />
-            </div>
-            <button 
-              className="header-about-btn"
-              onClick={() => setIsInfoPanelOpen(!isInfoPanelOpen)}
-            >
-              {isInfoPanelOpen ? 'Close' : 'About'}
-            </button>
-          </div>
-        </header>
+        <AppHeader 
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          isInfoPanelOpen={isInfoPanelOpen}
+          setIsInfoPanelOpen={setIsInfoPanelOpen}
+          onSearch={handleSearch}
+        />
 
         {/* Search Results */}
         {searchQuery && (
