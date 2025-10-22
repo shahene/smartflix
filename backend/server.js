@@ -73,11 +73,11 @@ app.get('/api/search', async (req, res) => {
     try {
       // Try AI embeddings search first
       const embedding = await openai.embeddings.create({
-        model: 'text-embedding-ada-002',
+        model: 'text-embedding-3-small',
         input: query,
       });
       
-      // Use full embedding dimensions (1024 for text-embedding-ada-002)
+      // Use full embedding dimensions (1536 for text-embedding-3-small)
       const queryResponse = await index.query({
         vector: embedding.data[0].embedding,
         topK: 10,

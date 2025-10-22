@@ -18,6 +18,12 @@ cd /Users/shahene/Projects/smartflix
 vercel
 ```
 
+**When Vercel asks "Which directory is your code located in?", answer:**
+```
+./
+```
+(Just press Enter - it should default to the current directory)
+
 ### 4. Set Environment Variables
 In your Vercel dashboard, go to your project settings and add these environment variables:
 

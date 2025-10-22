@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import './App.css';
 
@@ -11,33 +11,7 @@ function HomePage({ searchQuery }) {
   const [hasMore, setHasMore] = useState(true);
   const navigate = useNavigate();
 
-
-  useEffect(() => {
-    console.log('useEffect triggered for page:', currentPage);
-    fetchMovies();
-  }, [currentPage]);
-
-  // Infinite scroll effect
-  useEffect(() => {
-    const handleScroll = () => {
-      if (isLoadingMore || !hasMore) return;
-      
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      
-      // Load more when user is 200px from bottom
-      if (scrollTop + windowHeight >= documentHeight - 200) {
-        console.log('Near bottom, loading more movies...');
-        setCurrentPage(prev => prev + 1);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isLoadingMore, hasMore]);
-
-  const fetchMovies = async () => {
+  const fetchMovies = useCallback(async () => {
     try {
       if (currentPage > 1) {
         setIsLoadingMore(true);
@@ -65,7 +39,32 @@ function HomePage({ searchQuery }) {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  };
+  }, [currentPage, movies.length]);
+
+  useEffect(() => {
+    console.log('useEffect triggered for page:', currentPage);
+    fetchMovies();
+  }, [currentPage, fetchMovies]);
+
+  // Infinite scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (isLoadingMore || !hasMore) return;
+      
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      
+      // Load more when user is 200px from bottom
+      if (scrollTop + windowHeight >= documentHeight - 200) {
+        console.log('Near bottom, loading more movies...');
+        setCurrentPage(prev => prev + 1);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isLoadingMore, hasMore]);
 
 
   const handleMovieClick = (movieId) => {
@@ -92,12 +91,6 @@ function HomePage({ searchQuery }) {
         ) : null}
         <div className="poster-placeholder" style={{ display: movie.poster_url ? 'none' : 'flex' }}>
           <span className="movie-title">{movie.title}</span>
-        </div>
-        <div className="card-overlay">
-          <div className="overlay-content">
-            <div className="recommend-button">→</div>
-            <div className="hover-title">Find Similar</div>
-          </div>
         </div>
       </div>
     </div>
@@ -1706,13 +1699,7 @@ function RecommendationsPage() {
   const [recommendations, setRecommendations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchMovieAndRecommendations();
-    // Scroll to top when page loads
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [movieId]);
-
-  const fetchMovieAndRecommendations = async () => {
+  const fetchMovieAndRecommendations = useCallback(async () => {
     try {
       const apiUrl = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001/api';
       const movieRes = await fetch(`${apiUrl}/movies/${movieId}`);
@@ -1727,7 +1714,13 @@ function RecommendationsPage() {
       console.error('Failed to fetch data:', err);
       setIsLoading(false);
     }
-  };
+  }, [movieId]);
+
+  useEffect(() => {
+    fetchMovieAndRecommendations();
+    // Scroll to top when page loads
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [movieId, fetchMovieAndRecommendations]);
 
   const getSimilarityColor = (score) => {
     if (score >= 0.8) return '#4ade80'; // Green
@@ -1921,16 +1914,13 @@ function AppHeader({ searchQuery, setSearchQuery, isInfoPanelOpen, setIsInfoPane
           <span className="logo-text">SMARTFLIX</span>
         </div>
         <nav className="header-nav">
-          <a 
-            href="#" 
+          <button 
             className="nav-link"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate('/');
-            }}
+            onClick={() => navigate('/')}
+            style={{ background: 'none', border: 'none', color: 'inherit', font: 'inherit', cursor: 'pointer' }}
           >
             Home
-          </a>
+          </button>
           <a 
             href="/shahene_chaouachi_resume.pdf" 
             className="nav-link"
