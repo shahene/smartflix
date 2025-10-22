@@ -43,7 +43,8 @@ function HomePage({ searchQuery }) {
         setIsLoadingMore(true);
       }
       
-      const res = await fetch(`http://localhost:3001/api/movies?page=${currentPage}&limit=50`);
+      const apiUrl = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001/api';
+      const res = await fetch(`${apiUrl}/movies?page=${currentPage}&limit=50`);
       const data = await res.json();
       
       console.log(`Page ${currentPage}:`, data.movies.length, 'movies loaded');
@@ -1713,11 +1714,12 @@ function RecommendationsPage() {
 
   const fetchMovieAndRecommendations = async () => {
     try {
-      const movieRes = await fetch(`http://localhost:3001/api/movies/${movieId}`);
+      const apiUrl = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001/api';
+      const movieRes = await fetch(`${apiUrl}/movies/${movieId}`);
       const movieData = await movieRes.json();
       setMovie(movieData);
 
-      const recRes = await fetch(`http://localhost:3001/api/recommendations/${movieId}`);
+      const recRes = await fetch(`${apiUrl}/recommendations/${movieId}`);
       const recData = await recRes.json();
       setRecommendations(recData.recommendations || []);
       setIsLoading(false);
@@ -1886,43 +1888,19 @@ function RecommendationsPage() {
   );
 }
 
-// Main App Component
-export default function App() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
+// Header Component (inside Router context)
+function AppHeader({ searchQuery, setSearchQuery, isInfoPanelOpen, setIsInfoPanelOpen, onSearch }) {
+  const navigate = useNavigate();
   const [searchTimeout, setSearchTimeout] = useState(null);
 
-  const handleSearch = async (query) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      setIsSearching(false);
-      return;
-    }
-
-    setIsSearching(true);
-    try {
-      const res = await fetch(`http://localhost:3001/api/search?query=${encodeURIComponent(query)}`);
-      const data = await res.json();
-      setSearchResults(data.results || []);
-    } catch (err) {
-      console.error('Search failed:', err);
-      setSearchResults([]);
-    }
-    setIsSearching(false);
-  };
-
   const debouncedSearch = (query) => {
-    // Clear existing timeout
     if (searchTimeout) {
       clearTimeout(searchTimeout);
     }
     
-    // Set new timeout
     const timeout = setTimeout(() => {
-      handleSearch(query);
-    }, 300); // 300ms delay
+      onSearch(query);
+    }, 300);
     
     setSearchTimeout(timeout);
   };
@@ -1935,6 +1913,109 @@ export default function App() {
       }
     };
   }, [searchTimeout]);
+
+  return (
+    <header className="smartflix-header">
+      <div className="header-left">
+        <div className="smartflix-logo">
+          <span className="logo-text">SMARTFLIX</span>
+        </div>
+        <nav className="header-nav">
+          <a 
+            href="#" 
+            className="nav-link"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate('/');
+            }}
+          >
+            Home
+          </a>
+          <a 
+            href="/shahene_chaouachi_resume.pdf" 
+            className="nav-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            TV Shows
+          </a>
+          <a 
+            href="/shahene_chaouachi_resume.pdf" 
+            className="nav-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Movies
+          </a>
+          <a 
+            href="/shahene_chaouachi_resume.pdf" 
+            className="nav-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            New & Popular
+          </a>
+          <a 
+            href="/shahene_chaouachi_resume.pdf" 
+            className="nav-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            My List
+          </a>
+        </nav>
+      </div>
+      
+      <div className="header-right">
+        <div className="header-search-container">
+          <input
+            type="text"
+            placeholder="Search for movies..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              debouncedSearch(e.target.value);
+            }}
+            className="header-search"
+          />
+        </div>
+        <button 
+          className="header-about-btn"
+          onClick={() => setIsInfoPanelOpen(!isInfoPanelOpen)}
+        >
+          {isInfoPanelOpen ? 'Close' : 'About'}
+        </button>
+      </div>
+    </header>
+  );
+}
+
+// Main App Component
+export default function App() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
+
+  const handleSearch = async (query) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const apiUrl = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001/api';
+      const res = await fetch(`${apiUrl}/search?query=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      setSearchResults(data.results || []);
+    } catch (err) {
+      console.error('Search failed:', err);
+      setSearchResults([]);
+    }
+    setIsSearching(false);
+  };
 
   // Scroll to search results when they appear
   useEffect(() => {
@@ -2015,41 +2096,13 @@ export default function App() {
         </div>
 
         {/* Fixed Header */}
-        <header className="smartflix-header">
-          <div className="header-left">
-            <div className="smartflix-logo">
-              <span className="logo-text">SMARTFLIX</span>
-            </div>
-            <nav className="header-nav">
-              <a href="#" className="nav-link active">Home</a>
-              <a href="#" className="nav-link">TV Shows</a>
-              <a href="#" className="nav-link">Movies</a>
-              <a href="#" className="nav-link">New & Popular</a>
-              <a href="#" className="nav-link">My List</a>
-            </nav>
-          </div>
-          
-          <div className="header-right">
-            <div className="header-search-container">
-              <input
-                type="text"
-                placeholder="Search for movies..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  debouncedSearch(e.target.value);
-                }}
-                className="header-search"
-              />
-            </div>
-            <button 
-              className="header-about-btn"
-              onClick={() => setIsInfoPanelOpen(!isInfoPanelOpen)}
-            >
-              {isInfoPanelOpen ? 'Close' : 'About'}
-            </button>
-          </div>
-        </header>
+        <AppHeader 
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          isInfoPanelOpen={isInfoPanelOpen}
+          setIsInfoPanelOpen={setIsInfoPanelOpen}
+          onSearch={handleSearch}
+        />
 
         {/* Search Results */}
         {searchQuery && (
